@@ -39,6 +39,8 @@
   .card.ringing { background: color-mix(in srgb, var(--accent-color) 22%, transparent); animation: ring 1s ease-in-out infinite; }
   .card.ringing .time { color: var(--accent-color); }
   .card.ringing .stop { background: var(--accent-color); color: var(--card-color, #fff); }
+  .card.ringing .bar { animation: blink 1s ease-in-out infinite; }
+  @keyframes blink { 50% { opacity: .15; } }
   @keyframes ring { 50% { background: color-mix(in srgb, var(--accent-color) 42%, transparent); } }
 
   /* Ein einzelner Timer mit genug Platz: großer Ring in der Mitte */
@@ -202,7 +204,8 @@
       const text = clock(rings ? 0 : rest);
       const time = card.querySelector('.time');
       if (force || time.textContent !== text) time.innerHTML = text.replace(/\d/g, '<i>$&</i>');
-      card.querySelector('.bar').style.strokeDashoffset = String(CIRCLE * (1 - (rings ? 1 : Math.min(1, rest / Math.max(1, t.duration)))));
+      // Der Ring füllt sich mit der abgelaufenen Zeit: leer am Start, voll beim Ablauf
+      card.querySelector('.bar').style.strokeDashoffset = String(CIRCLE * (rings ? 0 : Math.min(1, rest / Math.max(1, t.duration))));
     });
     alarm(anyRinging);
   }
