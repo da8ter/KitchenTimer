@@ -1,0 +1,12 @@
+{
+    "id": "{33967998-A211-4CE4-88ED-A615B67A75A6}",
+    "name": "Kitchen Timer",
+    "type": 3,
+    "vendor": "",
+    "aliases": [],
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "KTIMER",
+    "url": "https://github.com/da8ter/KitchenTimer/blob/main/KitchenTimer/README.md"
+}

@@ -1,0 +1,12 @@
+{
+    "id": "{FAEB9DED-77AE-4971-961F-0A813CFF59B5}",
+    "name": "Kitchen Timer",
+    "author": "Stephan Sprick",
+    "url": "https://github.com/da8ter/KitchenTimer",
+    "compatibility": {
+        "version": "8.1"
+    },
+    "version": "1.0",
+    "build": 1,
+    "date": 0
+}
