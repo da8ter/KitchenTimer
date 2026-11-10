@@ -40,14 +40,15 @@
   @keyframes ring { 50% { background: color-mix(in srgb, var(--accent-color) 42%, transparent); } }
 
   /* Ein einzelner Timer mit genug Platz: großer Ring in der Mitte */
-  #list.solo { justify-content: center; }
-  #list.solo .card { position: relative; flex-direction: column; background: none; gap: 14px; padding: 0; --d: min(46vmin, 220px); }
+  /* --d (Ringdurchmesser) setzt layout() aus dem freien Platz */
+  #list.solo { justify-content: center; --d: min(46vmin, 220px); }
+  #list.solo .card { position: relative; flex-direction: column; background: none; gap: 14px; padding: 0; }
   #list.solo .ring { width: var(--d); height: var(--d); }
-  #list.solo .ring circle { stroke-width: 3.2; }
+  #list.solo .ring circle { stroke-width: 2.4; }
   #list.solo .info { position: absolute; top: calc(var(--d) / 2); transform: translateY(-50%); max-width: calc(var(--d) * .8);
     display: flex; flex-direction: column; align-items: center; pointer-events: none; }
-  #list.solo .name { text-align: center; }
-  #list.solo .time { font-size: min(9.5vmin, 2.6em); }
+  #list.solo .name { text-align: center; font-size: clamp(.85em, calc(var(--d) * .07), 1.5em); }
+  #list.solo .time { font-size: calc(var(--d) * .19); }
   #list.solo .card.ringing { animation: none; }
   #list.solo .card.ringing .ring { animation: pulse 1s ease-in-out infinite; }
   @keyframes pulse { 50% { transform: scale(1.05); } }
@@ -209,7 +210,10 @@
     root.classList.toggle('compact', compact);
     root.classList.toggle('narrow', innerWidth < 340);
     root.classList.toggle('tiny', innerWidth < 230);
-    $('list').classList.toggle('solo', !compact && timers.length === 1 && innerHeight >= 300 && innerWidth >= 220);
+    const list = $('list'), solo = !compact && timers.length === 1 && innerHeight >= 300 && innerWidth >= 220;
+    list.classList.toggle('solo', solo);
+    // Einzelner Timer: der Ring füllt Breite und Höhe der Liste (52 px bleiben für die Knöpfe darunter)
+    if (solo) list.style.setProperty('--d', Math.max(120, Math.min(list.clientWidth, list.clientHeight - 52, 520)) + 'px');
   }
 
   $('list').addEventListener('click', event => {
