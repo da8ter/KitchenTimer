@@ -54,6 +54,8 @@
   #list.solo .name { text-align: center; font-size: clamp(.85em, calc(var(--d) * .07), 1.5em); }
   #list.solo .time { font-size: calc(var(--d) * .19); }
   #list.solo .card.ringing { animation: none; }
+  /* In der Einzelansicht stehen Name und Zeit im Ring: die Glocke würde sie überdecken */
+  #list.solo .card.ringing .ring .bell { display: none; }
   #list.solo .card.ringing .ring { animation: pulse 1s ease-in-out infinite; }
   @keyframes pulse { 50% { transform: scale(1.05); } }
 
