@@ -27,6 +27,8 @@
   .info { flex: 1 1 auto; min-width: min-content; }
   .name { font-size: .85em; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 0; min-width: 100%; }
   .time { font-size: 1.7em; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.15; white-space: nowrap; }
+  /* Jede Ziffer in gleich breiter Zelle (--dw misst das Skript): die Anzeige springt nicht, der Doppelpunkt steht fest */
+  .time i { display: inline-block; width: var(--dw, .66em); text-align: center; font-style: normal; }
   .buttons { flex: 0 0 auto; display: flex; gap: 6px; }
   .btn { width: 38px; height: 38px; border-radius: 50%; background: var(--soft); display: flex; align-items: center; justify-content: center; }
   .btn svg { width: 18px; height: 18px; }
@@ -199,7 +201,7 @@
       buttons(card, rings ? 'ringing' : t.state);
       const text = clock(rings ? 0 : rest);
       const time = card.querySelector('.time');
-      if (force || time.textContent !== text) time.textContent = text;
+      if (force || time.textContent !== text) time.innerHTML = text.replace(/\d/g, '<i>$&</i>');
       card.querySelector('.bar').style.strokeDashoffset = String(CIRCLE * (1 - (rings ? 1 : Math.min(1, rest / Math.max(1, t.duration)))));
     });
     alarm(anyRinging);
@@ -345,6 +347,19 @@
   [['sheetTitle', 'New timer'], ['labelName', 'Name'], ['labelMin', 'Minutes'], ['labelSec', 'Seconds'], ['cancel', 'Cancel'], ['go', 'Start']]
     .forEach(([id, text]) => { $(id).textContent = T(text); });
   window.addEventListener('resize', layout);
+  // Breiteste Ziffer der tatsächlich geladenen Schrift messen (Poppins hat keine Tabellenziffern)
+  function measureDigits() {
+    const probe = document.createElement('span');
+    probe.className = 'time';
+    probe.style.cssText = 'position:absolute;visibility:hidden;font-size:100px';
+    document.body.appendChild(probe);
+    let max = 0;
+    for (let d = 0; d < 10; d++) { probe.textContent = String(d); max = Math.max(max, probe.getBoundingClientRect().width); }
+    probe.remove();
+    if (max > 0) root.style.setProperty('--dw', (Math.ceil(max) / 100) + 'em');
+  }
+  measureDigits();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureDigits);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(true); });
   quick();
   render();
