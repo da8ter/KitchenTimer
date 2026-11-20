@@ -56,9 +56,9 @@
   @keyframes blink { 50% { opacity: .15; } }
   @keyframes ring { 50% { background: color-mix(in srgb, var(--accent-color) 42%, transparent); } }
 
-  /* Ein einzelner Timer mit genug Platz: großer Ring, Name, Restzeit und Knöpfe darin */
+  /* Ein bis drei Timer mit genug Platz: große Ringe nebeneinander, Name, Restzeit und Knöpfe darin */
   /* --d (Ringdurchmesser) setzt layout() aus dem freien Platz; Ring und Inhalt liegen in derselben Gitterzelle */
-  #list.solo { justify-content: center; --d: min(46vmin, 220px); }
+  #list.solo { flex-direction: row; justify-content: center; align-items: center; gap: var(--ring-gap); --d: min(46vmin, 220px); }
   #list.solo .card { display: grid; grid-template-rows: 1fr auto auto 1fr; justify-items: center; align-items: center; gap: 0; background: none; padding: 0; }
   #list.solo .ring { grid-area: 1 / 1 / 5 / 2; width: var(--d); height: var(--d); }
   #list.solo .ring circle { stroke-width: 2.4; }
@@ -180,6 +180,8 @@
   const svg = name => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + ICONS[name] + '</svg>';
   const esc = text => String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const CIRCLE = 2 * Math.PI * 21;
+  // Ringansicht: höchstens drei Ringe; kleinster Ring, in dem Restzeit und drei Knöpfe Platz haben
+  const RING_MAX = 3, RING_MIN = 160, RING_MIN_SOLO = 120, RING_GAP = 16;
 
   let timers = Array.isArray(cfg.timers) ? cfg.timers : [];
   // Uhr des Servers: die Endzeiten stammen von dort
@@ -247,11 +249,20 @@
     root.classList.toggle('compact', compact);
     root.classList.toggle('narrow', innerWidth < 340);
     root.classList.toggle('tiny', innerWidth < 230);
-    // ab 230 px Breite, darunter blendet „tiny“ den Ring aus
-    const list = $('list'), solo = !compact && timers.length === 1 && innerHeight >= 300 && innerWidth >= 230;
+    // Ein bis drei Timer als Ringe nebeneinander, solange jeder Ring groß genug für Restzeit und
+    // drei Knöpfe bleibt; sonst die Liste. Ab 230 px Breite, darunter blendet „tiny“ den Ring aus.
+    const list = $('list'), n = timers.length;
+    let d = 0;
+    if (!compact && n >= 1 && n <= RING_MAX && innerHeight >= 300 && innerWidth >= 230) {
+      d = Math.floor(Math.min((list.clientWidth - RING_GAP * (n - 1)) / n, list.clientHeight));
+      if (n === 1) d = Math.max(RING_MIN_SOLO, d);
+    }
+    const solo = d >= (n === 1 ? RING_MIN_SOLO : RING_MIN);
     list.classList.toggle('solo', solo);
-    // Einzelner Timer: der Ring füllt Breite und Höhe der Liste; die Knöpfe stehen im Ring
-    if (solo) list.style.setProperty('--d', Math.max(120, Math.min(list.clientWidth, list.clientHeight)) + 'px');
+    if (solo) {
+      list.style.setProperty('--d', d + 'px');
+      list.style.setProperty('--ring-gap', RING_GAP + 'px');
+    }
   }
 
   $('list').addEventListener('click', event => {
