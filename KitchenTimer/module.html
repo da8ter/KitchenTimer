@@ -2,16 +2,29 @@
   html, body { margin: 0; padding: 0; height: 100%; }
   [hidden] { display: none !important; }
   body { width: auto; font-family: Poppins, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--content-color); -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
-  #app { position: fixed; inset: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px;
-    padding: var(--mt, 36px) var(--ms, 12px) var(--mb, 12px); }
+  /* Der Balken der Liste sitzt mittig im rechten Randstreifen (Hausregel, Vorlage Stundenplan):
+     rechts ergeben --sb-pad + --sb-pad + Balken wieder genau den seitlichen Rand. --sbw misst das Skript. */
+  #app { --sbw: 6px; --sb-pad: max(0px, calc((var(--ms, 12px) - var(--sbw)) / 2));
+    position: fixed; inset: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px;
+    padding: var(--mt, 36px) var(--sb-pad) var(--mb, 12px) var(--ms, 12px); }
   /* Am body, damit auch die Eingabemaske (außerhalb von #app) die Farben kennt */
   body { --soft: color-mix(in srgb, var(--content-color) 10%, transparent);
     --softer: color-mix(in srgb, var(--content-color) 6%, transparent); --dim: color-mix(in srgb, var(--content-color) 60%, transparent); }
   button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
   svg { display: block; }
 
-  #list { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; scrollbar-width: none; }
-  #list::-webkit-scrollbar { display: none; }
+  /* Der Streifen bleibt reserviert (stable), damit der rechte Abstand mit und ohne Balken gleich ist */
+  .scroller { overflow-y: auto; scrollbar-gutter: stable; overscroll-behavior: contain; }
+  #list { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 8px; padding-right: var(--sb-pad); }
+  .scroller::-webkit-scrollbar { width: 6px; }
+  .scroller::-webkit-scrollbar-track { background: transparent; }
+  .scroller::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--accent-color) 70%, transparent); border-radius: 999px; }
+  /* Standard und Pseudoelemente schließen sich aus: der Standard nur, wo es die Pseudoelemente nicht gibt */
+  @supports not selector(::-webkit-scrollbar) {
+    .scroller { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--accent-color) 70%, transparent) transparent; }
+  }
+  /* Was neben der Liste steht, endet dort, wo der Inhalt der Liste endet */
+  #empty, #more, #quick { margin-right: calc(var(--sb-pad) + var(--sbw)); }
   #empty { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; color: var(--dim); text-align: center; }
 
   .card { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 14px; background: var(--softer); }
@@ -115,7 +128,7 @@
 </style>
 
 <div id="app">
-  <div id="list"></div>
+  <div id="list" class="scroller"></div>
   <div id="empty"></div>
   <div id="more"></div>
   <div id="quick"></div>
@@ -147,6 +160,18 @@
     const value = parseInt(query.get(key), 10);
     if (value >= 0) $('app').style.setProperty('--' + name, value + 'px');
   });
+
+  // Tatsächliche Balkenbreite (je nach Umgebung 6–15 px), damit der Balken mittig im Randstreifen sitzt
+  try {
+    const probe = document.createElement('div');
+    probe.className = 'scroller';
+    probe.style.cssText = 'position:absolute;top:-9999px;left:-9999px;width:100px;height:100px';
+    probe.innerHTML = '<div style="height:200px"></div>';
+    document.body.appendChild(probe);
+    const width = probe.offsetWidth - probe.clientWidth;
+    probe.remove();
+    if (Number.isFinite(width) && width >= 0) $('app').style.setProperty('--sbw', width + 'px');
+  } catch (e) { /* Vorgabe 6 px */ }
 
   const ICONS = {
     pause: '<path d="M8 5v14M16 5v14"/>', play: '<path d="M7 5l12 7-12 7z"/>', stop: '<path d="M6 6l12 12M18 6L6 18"/>',
