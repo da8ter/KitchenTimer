@@ -1,5 +1,7 @@
 # Küchentimer
 
+![Küchentimer — Kachel](https://raw.githubusercontent.com/da8ter/images/main/Kuechentimer%20Kachel.png)
+
 Mehrere benannte Kurzzeitwecker in einer Kachel der Symcon-Kachelvisualisierung. Die Timer laufen in Symcon, nicht im Browser: Sie laufen ohne offene Visualisierung weiter, sind auf allen Geräten gleich und überstehen einen Neustart.
 
 ## Funktionen
@@ -7,8 +9,14 @@ Mehrere benannte Kurzzeitwecker in einer Kachel der Symcon-Kachelvisualisierung.
 - Bis zu zehn Timer gleichzeitig, jeder mit Namen.
 - Schnellstart über Minutenknöpfe und eigene Vorlagen (z. B. „Eier 7:00“), eigener Timer über „+“.
 - Je Timer: Pause, Weiter, +1 Minute, Stopp. Ein klingelnder Timer lässt sich stoppen oder um eine Minute verlängern.
-- Große Kachel: Liste aller Timer, ein einzelner Timer als großer Ring. Kleine Kachel: der Timer, der als Nächstes abläuft bzw. klingelt.
+- Große Kachel: bis zu drei Timer als große Ringe nebeneinander, Restzeit und Knöpfe im Ring; mehr Timer oder zu wenig Breite als Liste. Kleine Kachel: der Timer, der als Nächstes abläuft bzw. klingelt.
 - Beim Ablauf: Ton in der Kachel, eine frei wählbare Aktion (Ansage, Mitteilung, Licht …) und Variablen für eigene Ereignisse.
+
+## Visualisierung
+
+![Küchentimer — Liste](https://raw.githubusercontent.com/da8ter/images/main/Kuechentimer%20Liste.png)
+
+![Küchentimer — Klingeln](https://raw.githubusercontent.com/da8ter/images/main/Kuechentimer%20Klingeln.png)
 
 ## Voraussetzungen
 
