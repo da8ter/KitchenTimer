@@ -58,7 +58,8 @@
 
   /* Ein bis drei Timer mit genug Platz: große Ringe nebeneinander, Name, Restzeit und Knöpfe darin */
   /* --d (Ringdurchmesser) setzt layout() aus dem freien Platz; Ring und Inhalt liegen in derselben Gitterzelle */
-  #list.solo { flex-direction: row; justify-content: center; align-items: center; gap: var(--ring-gap); --d: min(46vmin, 220px); }
+  /* Die Ringe passen nach Konstruktion: in dieser Ansicht scrollt nichts (der Streifen bleibt reserviert) */
+  #list.solo { flex-direction: row; justify-content: center; align-items: center; gap: var(--ring-gap); --d: min(46vmin, 220px); overflow-y: hidden; }
   #list.solo .card { display: grid; grid-template-rows: 1fr auto auto 1fr; justify-items: center; align-items: center; gap: 0; background: none; padding: 0; }
   #list.solo .ring { grid-area: 1 / 1 / 5 / 2; width: var(--d); height: var(--d); }
   #list.solo .ring circle { stroke-width: 2.4; }
@@ -394,6 +395,9 @@
   [['sheetTitle', 'New timer'], ['labelName', 'Name'], ['labelMin', 'Minutes'], ['labelSec', 'Seconds'], ['cancel', 'Cancel'], ['go', 'Start']]
     .forEach(([id, text]) => { $(id).textContent = T(text); });
   window.addEventListener('resize', layout);
+  // Auch wenn nur die Liste schrumpft, z. B. weil die nachgeladene Schrift die Chips darunter höher macht:
+  // sonst behalten die Ringe die alte Größe und ragen über den Rand
+  if (window.ResizeObserver) new ResizeObserver(() => layout()).observe($('list'));
   // Breiteste Ziffer der tatsächlich geladenen Schrift messen (Poppins hat keine Tabellenziffern)
   function measureDigits() {
     const probe = document.createElement('span');
@@ -406,7 +410,7 @@
     if (max > 0) root.style.setProperty('--dw', (Math.ceil(max) / 100) + 'em');
   }
   measureDigits();
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureDigits);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { measureDigits(); layout(); });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(true); });
   quick();
   render();
